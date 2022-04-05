@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="" name=ShowTracksForm>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Tracks</legend>
+                <h2> The Following Tracks will be in the list, enter a playlist name and click 'confirm' to add playlist to your spotify account</h2>
+                <div class="container">
+                  <input type='text' name='thetitle'>
+                  <input type='submit' name='confirm'>
+                  {% for track in tracks %}
+                    {{track['track_artist']}} - {{track['title']}}
+                    <br>
+                  {% endfor %}
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock content %}

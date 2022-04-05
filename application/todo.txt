@@ -1,0 +1,34 @@
+playlist makers:
+
+options:
+Artists to include:
+
+Master with options
+all tracks by an artist:
+   checkboxes: choices = "Artist's tracks from Artist's own albums", "Artist's tracks from other artists albums", "Artists tracks from compilations"
+tracks related to an artist
+    "Other artists' tracks from Artist's albums", "Other Artists' tracks from albums Artist features on", "Other artists' tracks from compilations"
+
+Single button generators:
+
+All tracks from Artist's own albums
+All tracks including other artists' albums
+All tracks including other artists and compilations
+
+
+
+
+
+
+
+
+
+
+
+
+A PAGE IS:
+a view in routes
+a form in forms
+html in templates
+
+

@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method='POST' action="" name=ReturnElaborateForm>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">All Artist Tracks</legend>
+                <h2> Select your Artists</h2>
+                <div class="container">
+                  {# {% for artist in elaborate_dict_list %} #}
+                  {% for artist in elaborate_dict_list %}
+                    <input type="checkbox" name='selections' value={{artist['artist_id'] }}>
+                    <label> {{artist['artist']}} </label>
+                    <br>
+                  {% endfor %}
+                </div>
+              </div>
+              <h2> Should we include the selected artist(s) tracks from:</h2>
+              <div class="form-check">
+                <input type="checkbox" name=own_albums>
+                <label> selected artist's albums?</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" name=own_featured>
+                <label> other artist's albums?</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" name=own_compilations>
+                <label> compilations?</label>
+              </div>
+              <h2> Should we include other artists' tracks from:</h2>
+              <div class="form-check">
+                <input type="checkbox" name=other_own_albums>
+                <label> the slected artists' albums?</label>
+              </div>
+              <div class="form-check">
+              <input type="checkbox" name=other_featured>
+                <label> tracks from other artists' albums which the selected artists feature on?</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" name=other_compilations>
+                <label> other artist's tracks from compilations which the selected artists feature on?</label>
+              </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}

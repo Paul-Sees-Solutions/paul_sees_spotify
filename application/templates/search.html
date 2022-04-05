@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Search</legend>
+                <div class="form-group">
+                    {{ form.category.label(class="form-control-label") }}
+                    {{ form.category(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.search_term.label(class="form-control-label") }}
+                    {{ form.search_term(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.how_many.label(class="form-control-label") }}
+                    {{ form.how_many(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.artist.label(class="form-control-label") }}
+                    {{ form.artist(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.album.label(class="form-control-label") }}
+                    {{ form.album(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.track.label(class="form-control-label") }}
+                    {{ form.track(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.release_date.label(class="form-control-label") }}
+                    {{ form.release_date(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.only_new.label(class="form-control-label") }}
+                    {{ form.only_new(class="form-control form-control-lg") }}
+                </div>
+
+
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}
