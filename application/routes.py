@@ -43,6 +43,10 @@ def index():
     # user_spot = spotify.me()  # get user spotify details
     return render_template('home.html')
 
+@app.route('/spotauth')
+def spotauth():
+    pass
+
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():

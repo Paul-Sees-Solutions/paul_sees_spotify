@@ -3,6 +3,9 @@ from flask import Flask, session
 from flask_session import Session
 from flask_bootstrap import Bootstrap
 
+
+
+
 app = Flask(__name__)
 Bootstrap(app)
 
