@@ -279,13 +279,14 @@ def all_artist_tracks():
             item_dict = {'artist': artist, 'artist_id': artist_id}
             all_artist_tracks_dict_list.append(item_dict)
         session.update({'all_artist_tracks_dict_list': all_artist_tracks_dict_list})
+        print ("SESSION =",session)
         return redirect(url_for('return_artists'))
     return render_template('all_artist_tracks.html', form=form)
 
 
 @app.route('/return_artists', methods=['GET', 'POST'])
 def return_artists():
-    artist_dict_list = session.get('artist_dict_list')
+    all_artist_tracks_dict_list = session.get('all_artist_tracks_dict_list')
     selections = []
     form = ResultsForm()
     if request.method == 'POST':
@@ -296,7 +297,7 @@ def return_artists():
         session.update({'selections': selections})
         return redirect(url_for('show_tracklist'))
 
-    return render_template('return_artists.html', form=form, artist_dict_list=artist_dict_list)
+    return render_template('return_artists.html', form=form, all_artist_tracks_dict_list=all_artist_tracks_dict_list)
 
 
 @app.route('/show_tracklist', methods=['GET', 'POST'])
@@ -329,54 +330,3 @@ def made_playlist():
     return render_template('made_playlist.html', playlist_title=playlist_title)
 
 
-#### backups ####
-'''
-@app.route('/myresults', methods=['GET', 'POST'])
-def myresults():
-    artist_dict_list = session.get('artist_dict_list')
-    selections = []
-
-    # create html
-    output = "<form method='post'>"
-    for artist in artist_dict_list:
-        output += f"<label> {artist['artist']} </label>" \
-                  f"<input type='checkbox' name='hello' value={artist['artist_id']}> <br>"
-    output += "<input type='submit'> </form>"
-
-    if request.method == 'POST':
-        selections.extend(request.form.getlist('hello'))
-        session.update({'selections': selections})
-
-        return redirect(url_for('show_tracklist'))
-    return output
-
-
-@app.route('/show_tracklist', methods=['GET', 'POST'])
-def show_tracklist():
-    # prepare spotify
-    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    selections = session.get('selections')
-    tracks = get_tracks_from_artist_ids(selections)
-    session.update({'tracklist': tracks})
-    output = "<h1> The Following Tracks will be in the list, enter a playlist name and click 'confirm' to add playlist to your spotify account </h1>" \
-             "<form method='post'>" \
-             "<input type='text' name='thetitle'>" \
-             "<input type='submit' name='confirm'> "
-    for track in tracks:
-        output += f"<h3> {track['track_artist']} - {track['title']}</h3>"
-    if request.method == 'POST':
-        playlist_title = request.form.get('thetitle')
-        print("PLAYLIST TITLE =", playlist_title)
-        track_ids = []
-        for track in tracks:
-            pprint (track)
-            track_ids.append(track['track_id'])
-            print (track_ids)
-        site_playlist_maker(track_ids, playlist_title)
-
-    return output
-
-'''

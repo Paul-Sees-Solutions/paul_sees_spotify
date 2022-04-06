@@ -7,7 +7,7 @@
                 <legend class="border-bottom mb-4">All Artist Tracks</legend>
                 <h2> Select your Artists</h2>
                 <div class="container">
-                  {% for artist in artist_dict_list %}
+                  {% for artist in all_artist_tracks_dict_list %}
                     <input type="checkbox" name='selections' value={{artist['artist_id'] }}>
                     <label> {{artist['artist']}} </label>
                     <br>
