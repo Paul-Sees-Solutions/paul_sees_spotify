@@ -330,3 +330,16 @@ def made_playlist():
     return render_template('made_playlist.html', playlist_title=playlist_title)
 
 
+@app.route("/user_analysis")
+def analysis():
+
+    # temp_dict = data.to_dict(orient='records')
+    # return render_template('results.html', summary = temp_dict)
+
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = sp.Spotify(auth_manager=auth_manager)
+    current_user =  spotify.current_user()
+    return render_template('json_bootstrap.html', user_dict=current_user)
