@@ -151,7 +151,9 @@ def current_user():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
-    return spotify.current_user()
+    current_user=spotify.me()
+    return render_template('json_bootstrap.html', user_dict=current_user)
+    # return spotify.current_user()
 
 
 @app.route('/elaborate', methods=['GET', 'POST'])
