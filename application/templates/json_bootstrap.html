@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+  <h2> Your Username is {{ user_dict['display_name']}}</h2>
+  <h2> Your Spotify ID is {{ user_dict['id']}}</h2>
+</div>
+{% endblock content %}
+
+{#
+{% for key in user_dict %}
+  <tr>
+       <td> {{ key }} =  {{ user_dict[key] }}  </td>
+  </tr>
+{% endfor %}
+
+#}
