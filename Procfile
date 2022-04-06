@@ -1,3 +1,1 @@
-from application import app
-
-web: gunicorn
+web: gunicorn wsgi:app
