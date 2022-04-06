@@ -12,7 +12,7 @@ from wtforms.validators import InputRequired
 import spotipy as sp
 from application.spotify_functions import get_tracks_from_artist_ids, site_playlist_maker
 
-
+@app.route('/spotauth')
 @app.route('/')
 @app.route('/home')
 def index():
@@ -42,10 +42,10 @@ def index():
     # spotify = sp.Spotify(auth_manager=auth_manager)
     # user_spot = spotify.me()  # get user spotify details
     return render_template('home.html')
-
-@app.route('/spotauth')
-def spotauth():
-    pass
+#
+# @app.route('/spotauth')
+# def spotauth():
+#     pass
 
 
 @app.route('/search', methods=['GET', 'POST'])
