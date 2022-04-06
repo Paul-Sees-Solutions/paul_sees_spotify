@@ -10,7 +10,7 @@ from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired
 
 import spotipy as sp
-from application.site_spotify_functions import get_tracks_from_artist_ids, site_playlist_maker
+from application.spotify_functions import get_tracks_from_artist_ids, site_playlist_maker
 
 
 @app.route('/')
