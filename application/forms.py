@@ -3,9 +3,9 @@ from flask_wtf import FlaskForm, Form
 from wtforms.validators import InputRequired
 
 class Spot_SearchForm(FlaskForm):
-    category = SelectMultipleField('What are you searching for?', choices=['any', 'artist', 'album', 'track', 'playlist', 'show', 'episode'])
+    category = SelectMultipleField('What are you searching for? (ctrl-click for multiple)', choices=['any', 'artist', 'album', 'track', 'playlist']) # , 'show', 'episode'
     search_term = StringField('Search Term', filters = [lambda x: x or None])
-    how_many = StringField('How many results?',filters = [lambda x: x or None])
+    # how_many = StringField('How many results?',filters = [lambda x: x or None])
     artist = StringField('Constrain Artist',filters = [lambda x: x or None])
     album = StringField('Constrain Album',filters = [lambda x: x or None])
     track = StringField('Constrain Track',filters = [lambda x: x or None])

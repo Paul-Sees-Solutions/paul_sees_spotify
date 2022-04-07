@@ -11,41 +11,41 @@ from wtforms.validators import InputRequired
 
 import spotipy as sp
 from application.spotify_functions import get_tracks_from_artist_ids, site_playlist_maker
+scope = 'user-read-currently-playing playlist-modify-private playlist-modify-public'
 
 @app.route('/spotauth')
 @app.route('/')
-@app.route('/home')
 def index():
     if not session.get('uuid'):
-        print("not session")
-        # Step 1. Visitor is unknown, give random ID
         session['uuid'] = str(uuid.uuid4())
-
     cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = sp.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
+    auth_manager = sp.oauth2.SpotifyOAuth(scope= scope,
                                           cache_handler=cache_handler,
                                           show_dialog=True)
-
     if request.args.get("code"):
-        print("request.args.get")
-        # Step 3. Being redirected from Spotify auth page
         auth_manager.get_access_token(request.args.get("code"))
-        print("get access token")
         return redirect('/')
 
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        # Step 2. Display sign in link when no token
         auth_url = auth_manager.get_authorize_url()
-        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
-
-    # Step 4. Signed in, display data
-    # spotify = sp.Spotify(auth_manager=auth_manager)
-    # user_spot = spotify.me()  # get user spotify details
+        return render_template('login.html', auth_url=auth_url)
+    # if session.get('next_url'):
+    #     print ("SESSION HAS NEXT", session['next_url'])
+    #
+    #     return redirect(url_for(session['next_url']))
     return render_template('home.html')
-#
-# @app.route('/spotauth')
-# def spotauth():
-#     pass
+
+
+@app.route('/sign_out')
+def sign_out():
+    try:
+        # Remove the CACHE file (.cache-test) so that a new user can authorize.
+        os.remove(session_cache_path())
+        session.clear()
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
+    return redirect('/')
+
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -55,24 +55,21 @@ def search():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
+
     form = Spot_SearchForm()
     if request.method == 'POST':
-        print('validates')
         search_term = form.search_term.data
-        limit = form.how_many.data
         artist = form.artist.data
         album = form.album.data
         track = form.track.data
         release_date = form.release_date.data
         only_new = form.only_new.data
         category = form.category.data
-        print (category)
         if 'any' in category:
             category = "artist,album,track,playlist,show,episode"
         else:
             category=','.join(category)
             category.replace(" ","")
-            print (type(category),category)
         search_dict = {
             'artist': artist,
             'album': album,
@@ -87,7 +84,7 @@ def search():
             if search_dict[thing]:
                 search_string = search_string + " " + thing + ":" + search_dict[thing]
 
-        response = spotify.search(q=search_string, type=category, limit=limit)
+        response = spotify.search(q=search_string, type=category, limit=50)
         results_dict = {}
         for format in response:
             results = response[format]
@@ -98,10 +95,10 @@ def search():
                 results = spotify.next(results)
                 results = results[format]
                 things.extend(results['items'])
-            print("THERE ARE", len(things), format)
             results_dict.update({format: things})
             # response[format].update(things)
-        return results_dict
+        # return results_dict
+        return render_template(('/search_results.html'), results_dict=results_dict)
 
     print('unvalidated')
     return render_template('search.html', form=form)
@@ -109,39 +106,9 @@ def search():
 
 ##    return spotify.current_user_playlists()
 
-@app.route('/sign_out')
-def sign_out():
-    try:
-        # Remove the CACHE file (.cache-test) so that a new user can authorize.
-        os.remove(session_cache_path())
-        session.clear()
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
-    return redirect('/')
 
 
-@app.route('/playlists')
-def playlists():
-    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
 
-    spotify = sp.Spotify(auth_manager=auth_manager)
-    return spotify.current_user_playlists()
-
-
-@app.route('/currently_playing')
-def currently_playing():
-    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    spotify = sp.Spotify(auth_manager=auth_manager)
-    track = spotify.current_user_playing_track()
-    if not track is None:
-        return track
-    return "No track currently playing."
 
 
 @app.route('/current_user')
@@ -258,14 +225,11 @@ def made_elaborate():
 
 @app.route('/all_artist_tracks', methods=['GET', 'POST'])
 def all_artist_tracks():
-    # prepare spotify
     cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
     auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
-
-    # get form
 
     form = ArtistTracksForm()
     if request.method == 'POST':
@@ -281,7 +245,6 @@ def all_artist_tracks():
             item_dict = {'artist': artist, 'artist_id': artist_id}
             all_artist_tracks_dict_list.append(item_dict)
         session.update({'all_artist_tracks_dict_list': all_artist_tracks_dict_list})
-        print ("SESSION =",session)
         return redirect(url_for('return_artists'))
     return render_template('all_artist_tracks.html', form=form)
 
@@ -345,3 +308,73 @@ def analysis():
     spotify = sp.Spotify(auth_manager=auth_manager)
     current_user =  spotify.current_user()
     return render_template('json_bootstrap.html', user_dict=current_user)
+
+
+@app.route('/playlists')
+def playlists():
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = sp.Spotify(auth_manager=auth_manager)
+    return spotify.current_user_playlists()
+
+
+@app.route('/currently_playing')
+def currently_playing():
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = sp.Spotify(auth_manager=auth_manager)
+    track = spotify.current_user_playing_track()
+    if not track is None:
+        return track
+    return "No track currently playing."
+
+
+@app.route('/magic_buttons')
+def magic_buttons():
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = sp.Spotify(auth_manager=auth_manager)
+
+
+# get kap
+@app.route('/get_kap')
+def get_kap_list():
+    # SPOTIPY_REDIRECT_URI = 'http: //127.0.0.1:8080/get_kap'
+    # session.update({'next_url':url_for('get_kap_list')})
+    # cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    # auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    # spotify = sp.Spotify(auth_manager=auth_manager)
+    spotify = spot_auth()
+
+    kap_id = 'axaxx6ndw2opzzwztz5xs5me9'
+    kap_list = spotify.user_playlists(kap_id)
+
+    playlists = kap_list['items']
+    while kap_list['next']:
+        kap_list = spotify.next(kap_list)
+        playlists.extend(kap_list['items'])
+    playlist_dict_list = []
+    for item in playlists:
+        # playlist ={'id':item['id'], 'name':item['name']}
+        playlist_dict_list.append({'name':item['name'], 'id':item['id']})
+    # pprint (playlist_dict_list, width=300)
+    print (len(playlists))
+    for playlist in playlist_dict_list:
+        print (playlist['id'])
+    ###### BE CAREFULLLLLL!!!!!!!!     spotify.current_user_follow_playlist(play ### #### #### just in case #### ### list['id'])
+    return kap_list
+
+
+
+def spot_auth():
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    spotify = sp.Spotify(auth_manager=auth_manager)
+    return spotify
