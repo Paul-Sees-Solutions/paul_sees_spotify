@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+      {% if 'artists' in results_dict %}
+        <h1> ARTISTS </h1>
+        {% for artist in results_dict['artists'] %}
+        <p> <a href={{artist['external_urls']['spotify']}}> {{artist['name']}} </a>
+        </p>
+        {% endfor %}
+      {% endif %}
+
+      <br />
+
+      {% if 'albums' in results_dict %}
+        <h1> ALBUMS </h1>
+        {% for album in results_dict['albums'] %}
+          <p> <a href={{album['artists'][0]['external_urls']['spotify']}}> {{album['artists'][0]['name']}} </a>  ->
+            <a href={{album['external_urls']['spotify']}}> {{album['name']}} </a> </<p>
+        {% endfor %}
+      {% endif %}
+
+      <br />
+
+      {% if 'tracks' in results_dict %}
+        <h1> TRACKS </h1>
+        {% for track in results_dict['tracks'] %}
+          <p> <a href={{track['artists'][0]['external_urls']['spotify']}}> {{track['artists'][0]['name']}} </a>  ->
+            <a href={{track['album']['external_urls']['spotify']}}> {{track['album']['name']}} </a>  ->
+            <a href={{track['external_urls']['spotify']}}> {{track['name']}} </a> </<p>
+        {% endfor %}
+      {% endif %}
+
+      <br />
+
+      {% if 'playlists' in results_dict %}
+        <h1> PLAYLISTS </h1>
+        {% for playlist in results_dict['playlists']%}
+          <p> <a href={{playlist['external_urls']['spotify']}}> {{playlist['name']}}</a>
+
+          </p>
+        {% endfor %}
+      {% endif %}
+
+    </div>
+{% endblock content %}
