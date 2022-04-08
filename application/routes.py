@@ -85,20 +85,38 @@ def search():
                 search_string = search_string + " " + thing + ":" + search_dict[thing]
 
         response = spotify.search(q=search_string, type=category, limit=50)
+        results_list = []
         results_dict = {}
-        for format in response:
-            results = response[format]
+        for media_type in response:
+            results = response[media_type]
             # print (len(results['items']),"RESULTS IN FORMAT",format)
             things = results['items']
             while results['next']:
                 # print (len(results['items']),"MORE RESULTS IN FORMAT",format)
                 results = spotify.next(results)
-                results = results[format]
+                results = results[media_type]
                 things.extend(results['items'])
-            results_dict.update({format: things})
+            results_dict.update({media_type: things})
+            results_list.extend(things)
             # response[format].update(things)
-        # return results_dict
-        return render_template(('/search_results.html'), results_dict=results_dict)
+
+
+
+        '''
+        #### sort the list, but key errors ###
+        
+        new_list= sorted(results_list, key=lambda x: (
+            x['artists'][0]['name'], x['name']))
+        # for result in new_list:
+        #     print (result['artists'][0]['name'], " - ", result['name'])
+
+
+        # WORKS results_list.sort(key=lambda e: e['artists'][0]['name'], reverse=False)
+        
+        '''
+
+        return results_dict
+        # return render_template(('/search_results.html'), results_dict=results_dict)
 
     print('unvalidated')
     return render_template('search.html', form=form)
