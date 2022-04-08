@@ -108,25 +108,12 @@ def search():
             album_list = sorted(results_dict['albums'], key=lambda x: (x['artists'][0]['name'], x['name']))
             meta_results_dict.update({'albums':album_list})
         if 'tracks' in results_dict:
-            print ("TRACVKS IN THE LIST")
             track_list = sorted(results_dict['tracks'], key=lambda x: (x['artists'][0]['name'], x['album']['name'], x['name']))
             meta_results_dict.update(({'tracks':track_list}))
-            pprint (track_list[len(track_list)-1])
+        if 'playlists' in results_dict:
+            playlist_list = sorted(results_dict['playlists'], key=lambda x: (x['name']))
+            meta_results_dict.update({'playlists': playlist_list})
 
-
-
-        '''
-        #### sort the list, but key errors ###
-        
-        new_list= sorted(results_list, key=lambda x: (
-            x['artists'][0]['name'], x['name']))
-        # for result in new_list:
-        #     print (result['artists'][0]['name'], " - ", result['name'])
-
-
-        # WORKS results_list.sort(key=lambda e: e['artists'][0]['name'], reverse=False)
-        
-        '''
 
         # return results_dict
         return render_template(('/search_results.html'), results_dict=results_dict, meta_results_dict=meta_results_dict)

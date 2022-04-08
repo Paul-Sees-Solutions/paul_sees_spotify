@@ -43,7 +43,7 @@
 
       {% if 'playlists' in results_dict %}
         <h1> PLAYLISTS </h1>
-        <p> {% for playlist in results_dict['playlists']%}
+        <p> {% for playlist in meta_results_dict['playlists']%}
           <a href={{playlist['external_urls']['spotify']}}> {{playlist['name']}}</a>
         <br>
         {% endfor %}
