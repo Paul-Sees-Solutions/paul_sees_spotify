@@ -115,8 +115,8 @@ def search():
         
         '''
 
-        return results_dict
-        # return render_template(('/search_results.html'), results_dict=results_dict)
+        # return results_dict
+        return render_template(('/search_results.html'), results_dict=results_dict)
 
     print('unvalidated')
     return render_template('search.html', form=form)
