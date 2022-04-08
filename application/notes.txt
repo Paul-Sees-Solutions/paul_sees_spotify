@@ -15,9 +15,18 @@ All tracks from Artist's own albums
 All tracks including other artists' albums
 All tracks including other artists and compilations
 
+album sorting
+sorted(results_list, key=lambda x: (x['artists'][0]['name'], x['name']))
 
 
 
+      {% if 'artists' in results_dict %}
+        <h1> ARTISTS </h1>
+        <p> {% for artist in artist_list %}
+        <a href={{artist['external_urls']['spotify']}}> {{artist['name']}} </a>
+<br />
+        {% endfor %}
+      {% endif %}
 
 
 

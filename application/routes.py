@@ -98,7 +98,20 @@ def search():
                 things.extend(results['items'])
             results_dict.update({media_type: things})
             results_list.extend(things)
-            # response[format].update(things)
+
+        meta_results_dict = {}
+        if 'artists' in results_dict:
+            artist_list = results_dict['artists']
+            artist_list.sort(key=lambda x: (x['name']))
+            meta_results_dict.update({'artists': artist_list})
+        if 'albums' in results_dict:
+            album_list = sorted(results_dict['albums'], key=lambda x: (x['artists'][0]['name'], x['name']))
+            meta_results_dict.update({'albums':album_list})
+        if 'tracks' in results_dict:
+            print ("TRACVKS IN THE LIST")
+            track_list = sorted(results_dict['tracks'], key=lambda x: (x['artists'][0]['name'], x['album']['name'], x['name']))
+            meta_results_dict.update(({'tracks':track_list}))
+            pprint (track_list[len(track_list)-1])
 
 
 
@@ -116,7 +129,7 @@ def search():
         '''
 
         # return results_dict
-        return render_template(('/search_results.html'), results_dict=results_dict)
+        return render_template(('/search_results.html'), results_dict=results_dict, meta_results_dict=meta_results_dict)
 
     print('unvalidated')
     return render_template('search.html', form=form)
