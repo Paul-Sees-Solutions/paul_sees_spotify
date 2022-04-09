@@ -98,12 +98,12 @@ def search():
             artist_list.sort(key=lambda x: (x['name'].lower(), -x['followers']['total']))
             meta_results_dict.update({'artists': artist_list})
         if 'albums' in results_dict:
-            album_list = sorted(results_dict['albums'],
-                                key=lambda x: (x['artists'][0]['name'].lower(), x['name'].lower()))
+            album_list = sorted(results_dict['albums'], key=lambda x: (x['artists'][0]['name'].lower(),
+                                                                       x['name'].lower()))
             meta_results_dict.update({'albums': album_list})
         if 'tracks' in results_dict:
-            track_list = sorted(results_dict['tracks'], key=lambda x: (
-            x['artists'][0]['name'].lower(), x['album']['name'].lower(), x['name'].lower()))
+            track_list = sorted(results_dict['tracks'], key=lambda x: (x['artists'][0]['name'].lower(),
+                                                                       x['album']['name'].lower(), x['name'].lower()))
             meta_results_dict.update(({'tracks': track_list}))
         if 'playlists' in results_dict:
             playlist_list = sorted(results_dict['playlists'], key=lambda x: (x['name'].lower()))
