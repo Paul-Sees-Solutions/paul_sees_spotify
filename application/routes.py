@@ -11,7 +11,9 @@ from wtforms.validators import InputRequired
 
 import spotipy as sp
 from application.spotify_functions import get_tracks_from_artist_ids, site_playlist_maker
+
 scope = 'user-read-currently-playing playlist-modify-private playlist-modify-public'
+
 
 @app.route('/spotauth')
 @app.route('/')
@@ -19,7 +21,7 @@ def index():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
     cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = sp.oauth2.SpotifyOAuth(scope= scope,
+    auth_manager = sp.oauth2.SpotifyOAuth(scope=scope,
                                           cache_handler=cache_handler,
                                           show_dialog=True)
     if request.args.get("code"):
@@ -46,8 +48,6 @@ def sign_out():
         print("Error: %s - %s." % (e.filename, e.strerror))
     return redirect('/')
 
-
-
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
@@ -55,67 +55,61 @@ def search():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
-
     form = Spot_SearchForm()
+
     if request.method == 'POST':
-        search_term = form.search_term.data
-        artist = form.artist.data
-        album = form.album.data
-        track = form.track.data
-        release_date = form.release_date.data
-        only_new = form.only_new.data
+        new_search_dict = {}
+        for search_condition in ['artist', 'album', 'track', 'year', 'only_new']:
+            if form.data[search_condition]:
+                new_search_dict.update({search_condition: form.data[search_condition]})
         category = form.category.data
-        if 'any' in category:
-            category = "artist,album,track,playlist,show,episode"
+        if "any" in category:
+            category = "artist,album,track,playlist"  ### ,show,episode ### implement in html....
         else:
-            category=','.join(category)
-            category.replace(" ","")
-        search_dict = {
-            'artist': artist,
-            'album': album,
-            'track': track,
-            'release_date': release_date,
-            'only_new': only_new}
-        if search_term:
-            search_string = search_term
+            category = ','.join(category)
+            category.replace(" ", "")
+        if 'search_term' in form.data:
+            search_string = form.search_term.data
         else:
             search_string = ''
-        for thing in search_dict:
-            if search_dict[thing]:
-                search_string = search_string + " " + thing + ":" + search_dict[thing]
-
+        if new_search_dict:
+            for constraint in new_search_dict:
+                search_string = search_string + " " + constraint + ":" + new_search_dict[constraint]
         response = spotify.search(q=search_string, type=category, limit=50)
-        results_list = []
+
+        # results_list = []
         results_dict = {}
         for media_type in response:
-            results = response[media_type]
-            # print (len(results['items']),"RESULTS IN FORMAT",format)
-            things = results['items']
-            while results['next']:
-                # print (len(results['items']),"MORE RESULTS IN FORMAT",format)
-                results = spotify.next(results)
-                results = results[media_type]
-                things.extend(results['items'])
-            results_dict.update({media_type: things})
-            results_list.extend(things)
+            if response[media_type]['items']:
+                results = response[media_type]
+                # print (len(results['items']),"RESULTS IN FORMAT",format)
+                things = results['items']
+                while results['next'] and results['offset'] < 950:
+                    # print (len(results['items']),"MORE RESULTS IN FORMAT",format)
+                    results = spotify.next(results)
+                    results = results[media_type]
+                    things.extend(results['items'])
+                results_dict.update({media_type: things})
+                # results_list.extend(things)
 
         meta_results_dict = {}
         if 'artists' in results_dict:
             artist_list = results_dict['artists']
-            artist_list.sort(key=lambda x: (x['name']))
+            artist_list.sort(key=lambda x: (x['name'].lower(), -x['followers']['total']))
             meta_results_dict.update({'artists': artist_list})
         if 'albums' in results_dict:
-            album_list = sorted(results_dict['albums'], key=lambda x: (x['artists'][0]['name'], x['name']))
-            meta_results_dict.update({'albums':album_list})
+            album_list = sorted(results_dict['albums'],
+                                key=lambda x: (x['artists'][0]['name'].lower(), x['name'].lower()))
+            meta_results_dict.update({'albums': album_list})
         if 'tracks' in results_dict:
-            track_list = sorted(results_dict['tracks'], key=lambda x: (x['artists'][0]['name'], x['album']['name'], x['name']))
-            meta_results_dict.update(({'tracks':track_list}))
+            track_list = sorted(results_dict['tracks'], key=lambda x: (
+            x['artists'][0]['name'].lower(), x['album']['name'].lower(), x['name'].lower()))
+            meta_results_dict.update(({'tracks': track_list}))
         if 'playlists' in results_dict:
-            playlist_list = sorted(results_dict['playlists'], key=lambda x: (x['name']))
+            playlist_list = sorted(results_dict['playlists'], key=lambda x: (x['name'].lower()))
             meta_results_dict.update({'playlists': playlist_list})
 
-
-        # return results_dict
+        # return meta_results_dict
         return render_template(('/search_results.html'), results_dict=results_dict, meta_results_dict=meta_results_dict)
 
     print('unvalidated')
@@ -125,10 +119,6 @@ def search():
 ##    return spotify.current_user_playlists()
 
 
-
-
-
-
 @app.route('/current_user')
 def current_user():
     cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
@@ -136,7 +126,7 @@ def current_user():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
-    current_user=spotify.me()
+    current_user = spotify.me()
     return render_template('json_bootstrap.html', user_dict=current_user)
     # return spotify.current_user()
 
@@ -154,7 +144,7 @@ def elaborate():
 
     form = ArtistTracksForm()
     if request.method == 'POST':
-    # if form.validate():
+        # if form.validate():
         artist = form.artist.data
         results = spotify.search(q=artist, type='artist')
 
@@ -205,28 +195,28 @@ def show_elaborate():
 
     form = TracklistForm()
     selections = session.get('elaborate_selections')
-    own_albums=request.form.get('own_albums')
-    own_featured=request.form.get('own_featured')
-    own_comp=request.form.get('own_compilations')
-    other_own_albums=request.form.get('other_own_albums')
-    other_featured=request.form.get('other_featured')
-    other_comp=request.form.get('other_compilations')
-    own_tracks=[own_albums,own_featured,own_comp]
-    other_tracks=[other_own_albums,other_featured,other_comp]
+    own_albums = request.form.get('own_albums')
+    own_featured = request.form.get('own_featured')
+    own_comp = request.form.get('own_compilations')
+    other_own_albums = request.form.get('other_own_albums')
+    other_featured = request.form.get('other_featured')
+    other_comp = request.form.get('other_compilations')
+    own_tracks = [own_albums, own_featured, own_comp]
+    other_tracks = [other_own_albums, other_featured, other_comp]
     if not any(own_tracks):
         own_tracks = False
     elif all(own_tracks):
         own_tracks = True
     elif any(own_tracks):
-        own_tracks="some"
-    if not any (other_tracks):
-        other_tracks=False
+        own_tracks = "some"
+    if not any(other_tracks):
+        other_tracks = False
     elif all(other_tracks):
-        other_tracks=True
+        other_tracks = True
     elif any(other_tracks):
-        other_tracks="some"
+        other_tracks = "some"
 
-    if request.method== 'POST':
+    if request.method == 'POST':
         print("own :", own_tracks, "other", other_tracks)
         return redirect(url_for('made_elaborate'))
     return render_template('show_elaborate.html', form=form)
@@ -315,7 +305,6 @@ def made_playlist():
 
 @app.route("/user_analysis")
 def analysis():
-
     # temp_dict = data.to_dict(orient='records')
     # return render_template('results.html', summary = temp_dict)
 
@@ -324,7 +313,7 @@ def analysis():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
     spotify = sp.Spotify(auth_manager=auth_manager)
-    current_user =  spotify.current_user()
+    current_user = spotify.current_user()
     return render_template('json_bootstrap.html', user_dict=current_user)
 
 
@@ -381,14 +370,13 @@ def get_kap_list():
     playlist_dict_list = []
     for item in playlists:
         # playlist ={'id':item['id'], 'name':item['name']}
-        playlist_dict_list.append({'name':item['name'], 'id':item['id']})
+        playlist_dict_list.append({'name': item['name'], 'id': item['id']})
     # pprint (playlist_dict_list, width=300)
-    print (len(playlists))
+    print(len(playlists))
     for playlist in playlist_dict_list:
-        print (playlist['id'])
+        print(playlist['id'])
     ###### BE CAREFULLLLLL!!!!!!!!     spotify.current_user_follow_playlist(play ### #### #### just in case #### ### list['id'])
     return kap_list
-
 
 
 def spot_auth():

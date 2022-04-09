@@ -41,3 +41,33 @@ a form in forms
 html in templates
 
 
+
+### backup search ###
+
+
+        # search_term = form.search_term.data
+        # artist = form.artist.data
+        # album = form.album.data
+        # track = form.track.data
+        # release_date = form.release_date.data
+        # only_new = form.only_new.data
+        # category = form.category.data
+        # if 'any' in category:
+        #     category = "artist,album,track,playlist" ### ,show,episode ### implement in html....
+        # else:
+        #     category=','.join(category)
+        #     category.replace(" ","")
+        # search_dict = {
+        #     'artist': artist,
+        #     'album': album,
+        #     'track': track,
+        #     'release_date': release_date,
+        #     'only_new': only_new}
+        # if search_term:
+        #     search_string = search_term
+        # else:
+        #     search_string = ''
+        # for count, thing in enumerate(search_dict):
+        #     if search_dict[thing]:
+        #         search_string = search_string + " " + thing + ":" + search_dict[thing]
+### backup search ###
