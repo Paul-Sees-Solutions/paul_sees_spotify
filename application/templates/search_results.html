@@ -1,5 +1,87 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="content-section">
+
+  {% if 'artists' in meta_results_dict %}
+  <table class="col text-center">
+    <tr>
+      <h3 class="table_head"> ARTISTS </h3>
+    </tr>
+    {% for artist in meta_results_dict['artists'] %}
+    <tr>
+      <td>
+        <a href={{artist['external_urls']['spotify']}}> {{artist['name']}}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <hr>
+  {% endif %}
+
+  {% if 'albums' in meta_results_dict %}
+  <table class="col">
+    <tr>
+      <h3 class="table_head"> ALBUMS </h3>
+    </tr>
+    {% for album in meta_results_dict['albums'] %}
+    <tr>
+      <td class="col-6 text-right pr-2">
+        <a href={{album['artists'][0]['external_urls']['spotify']}}> {{album['artists'][0]['name']}} </a>
+      </td>
+      <td class="text-left pl-2">
+        <a href={{album['external_urls']['spotify']}}> {{album['name']}} </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <hr />
+  {% endif %}
+
+  {% if 'tracks' in meta_results_dict %}
+  <table class="col">
+    <tr>
+      <h3 class="table_head"> TRACKS </h3>
+    </tr>
+    {% for track in meta_results_dict['tracks'] %}
+    <tr>
+      <td class="col-4 text-right pr-2">
+        <a href={{track['artists'][0]['external_urls']['spotify']}}> {{track['artists'][0]['name']}} </a>
+      </td>
+      <td class="text-center">
+        <a href={{track['album']['external_urls']['spotify']}}> {{track['album']['name']}} </a>
+      </td>
+      <td class="text-left pl-2">
+        <a href={{track['external_urls']['spotify']}}> {{track['name']}} </a>
+      </td>
+      {% endfor %}
+  </table>
+  <hr />
+  {% endif %}
+
+  {% if 'playlists' in meta_results_dict %}
+  <table class="col">
+    <tr>
+      <td>
+        <h3 class="table_head"> PLAYLISTS </h3>
+      </td>
+    </tr>
+    {% for playlist in meta_results_dict['playlists']%}
+    <tr>
+      <td class="col text-center">
+        <a href={{playlist['external_urls']['spotify']}}> {{playlist['name']}}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+</div>
+
+{% endblock content %}
+
+{#
+{% extends "layout.html" %}
+{% block content %}
     <div class="content-section">
 
       {% if 'artists' in meta_results_dict %}
@@ -43,3 +125,4 @@
       </p>
     </div>
 {% endblock content %}
+#}

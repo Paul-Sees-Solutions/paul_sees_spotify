@@ -1,5 +1,47 @@
 {% extends "layout.html" %}
 {% block content %}
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <table>
+                  <legend class="text-center border-bottom mb-4">Search</legend>
+                {% for field in form if not field.name =="csrf_token" %}
+                  <tr >
+                      {% if field.type == "SubmitField" %}
+                      <td class="col"> </td>
+                      <td>{{form.submit(class="col btn btn-outline-info", style="width:200px") }} </td>
+
+                      {% elif field.type == "BooleanField"%}
+                      <td class="col form-check-label text-right pr-3">{{ field.label}}</td>
+                      <td class="col text-center">{{ field }}</td>
+
+                      {% elif field.type == "SelectMultipleField" %}
+                      <td class="col text-right pr-3">What are you searching for? <br /><span class="small"> ctrl-click for multiple </span></td>
+                      <td class="col text-center">{{ field (style="width:200px; text-align:center")}}</td>
+
+                      {% else %}
+                      <td class="col text-right pr-3">{{ field.label }}</td>
+                      <td class="col">{{ field (style="width:200px; text-align:center")}}</td>
+                        {% endif %}
+                  </tr>
+                {% endfor %}
+
+              </table>
+            </fieldset>
+        </form>
+{% endblock content %}
+
+
+{#
+
+  {% if field.type != "SubmitField "%}
+ and not field.type == "SubmitField"
+{% else %}
+    ITS A SUBMIT {{ form.submit(class="btn btn-outline-info") }}
+{% endif %}
+
+{% extends "layout.html" %}
+{% block content %}
     <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
@@ -36,9 +78,7 @@
 
 
             </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
         </form>
     </div>
-{% endblock content %}
+
+    #}
