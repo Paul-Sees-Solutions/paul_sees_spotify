@@ -10,17 +10,17 @@
 
         {% if field.type == "SubmitField" %}
         <div class="row mt-3">
-          <div class="col ">{{form.submit(class=" col w-25 text-center btn btn-outline-info") }} </div>
+          <div class="col ">{{form.submit(class=" col-sm-6 col-lg-4 w-25 text-center btn btn-outline-info") }} </div>
         </div>
 
         {% elif field.type == "SelectMultipleField" %}
         <div class="row">
-          <div class="col">{{ field(class="col-4 w-50 text-center", size=5) }}</div>
+          <div class="col">{{ field(class="col-sm-6 col-lg-4 w-50 text-center", size=5) }}</div>
         </div>
 
         {% else %}
         <div class="row mt-1">
-          <div class="col">{{ field (class="col-4 w-50 text-center", placeholder=field.name)}}</div>
+          <div class="col">{{ field (class="col-sm-6 col-lg-4 w-50 text-center", placeholder=field.name)}}</div>
         </div>
 
         {% endif %}
