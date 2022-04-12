@@ -8,9 +8,9 @@ class Spot_SearchForm(FlaskForm):
     # how_many = StringField('How many results?',filters = [lambda x: x or None])
     artist = StringField('Constrain Artist',filters = [lambda x: x or None])
     album = StringField('Constrain Album',filters = [lambda x: x or None])
-    track = StringField('Constrain Track',filters = [lambda x: x or None])
+    # track = StringField('Constrain Track',filters = [lambda x: x or None])
     year = StringField('Constrain Release Year or Range',filters = [lambda x: x or None])
-    only_new = BooleanField('Limit to last 2 weeks?')
+    # only_new = BooleanField('Limit to last 2 weeks?')
     submit = SubmitField('Search')
 
 class ArtistTracksForm(FlaskForm):

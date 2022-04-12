@@ -1,5 +1,122 @@
 {% extends "layout.html" %}
 {% block content %}
+
+
+{% if 'artists' in meta_results_dict %}
+<div class="content-section">
+  <div class="row">
+    <h3 class="col text-center"> ARTISTS </h3>
+  </div>
+  <hr />
+  {% for artist in meta_results_dict['artists'] %}
+  <div class="row">
+    <a class="col" , href={{artist['external_urls']['spotify']}}> {{artist['name']}}</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+
+{% if 'albums' in meta_results_dict %}
+<div class="content-section">
+  <div class="row">
+    <h3 class="col text-center"> ALBUMS </h3>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col text-right">
+      ARTIST
+    </div>
+    <div class="col text-left">
+      ALBUM
+    </div>
+  </div>
+
+  {% for album in meta_results_dict['albums'] %}
+  <div class="row">
+    <div class="col text-right">
+      <a href={{album['artists'][0]['external_urls']['spotify']}}> {{album['artists'][0]['name']}} </a>
+    </div>
+    <div class="col text-left">
+      <a href={{album['external_urls']['spotify']}}> {{album['name']}} </a>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+{% endif %}
+
+
+{% if 'tracks' in meta_results_dict %}
+<div class="content-section">
+  <div class="row">
+    <h3 class="col"> TRACKS </h3>
+  </div>
+<hr />
+  <div class=row>
+    <div class="col-2">
+    </div>
+    <div class="col-2  text-center">
+      ARTIST
+    </div>
+    <div class="col-4 text-center">
+      ALBUM
+    </div>
+    <div class="col-2 text-center">
+      TRACK
+    </div>
+    <div class="col-2">
+    </div>
+  </div>
+
+  {% for track in meta_results_dict['tracks'] %}
+  <div class=row>
+    <div class="col text-right">
+      <a href={{track['artists'][0]['external_urls']['spotify']}}> {{track['artists'][0]['name']}} </a>
+    </div>
+    <div class="col">
+      <a href={{track['album']['external_urls']['spotify']}}> {{track['album']['name']}} </a>
+    </div>
+    <div class="col text-left">
+      <a href={{track['external_urls']['spotify']}}> {{track['name']}} </a>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+{% endif %}
+
+
+{% if 'playlists' in meta_results_dict %}
+<div class="content-section">
+  <div class="row">
+    <h3 class="col"> PLAYLISTS </h3>
+  </div>
+<hr />
+  {% for playlist in meta_results_dict['playlists']%}
+  <div class="row">
+    <div class="col text-center">
+      <a href={{playlist['external_urls']['spotify']}}> {{playlist['name']}}</a>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+<hr />
+{% endif %}
+
+
+{% endblock content %}
+
+{#
+
+}
+
+
+
+
+{#{% extends "layout.html" %}
+{% block content %}
 <div class="content-section">
 
   {% if 'artists' in meta_results_dict %}
@@ -77,52 +194,4 @@
 
 </div>
 
-{% endblock content %}
-
-{#
-{% extends "layout.html" %}
-{% block content %}
-    <div class="content-section">
-
-      {% if 'artists' in meta_results_dict %}
-        <h1> ARTISTS </h1>
-        <p> {% for artist in meta_results_dict['artists'] %}
-            <a href={{artist['external_urls']['spotify']}}> {{artist['name']}}</a>
-            <br />
-            {% endfor %}
-      {% endif %}</p>
-<hr />
-      {% if 'albums' in meta_results_dict %}
-        <h1> ALBUMS </h1>
-        <p>{% for album in meta_results_dict['albums'] %}
-           <a href={{album['artists'][0]['external_urls']['spotify']}}> {{album['artists'][0]['name']}} </a>  ->
-            <a href={{album['external_urls']['spotify']}}> {{album['name']}} </a>
-        <br />
-        {% endfor %}
-      {% endif %}</<p>
-<hr />
-      {% if 'tracks' in meta_results_dict %}
-        <h1> TRACKS </h1>
-        <p> {% for track in meta_results_dict['tracks'] %}
-          <a href={{track['artists'][0]['external_urls']['spotify']}}> {{track['artists'][0]['name']}} </a>  ->
-            <a href={{track['album']['external_urls']['spotify']}}> {{track['album']['name']}} </a>  ->
-            <a href={{track['external_urls']['spotify']}}> {{track['name']}} </a>
-        <br>
-        {% endfor %}
-
-      {% endif %}
-      </<p>
-<hr />
-
-      {% if 'playlists' in meta_results_dict %}
-        <h1> PLAYLISTS </h1>
-        <p> {% for playlist in meta_results_dict['playlists']%}
-          <a href={{playlist['external_urls']['spotify']}}> {{playlist['name']}}</a>
-        <br>
-        {% endfor %}
-
-      {% endif %}
-      </p>
-    </div>
-{% endblock content %}
-#}
+{% endblock content %}#}

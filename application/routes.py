@@ -59,11 +59,11 @@ def search():
 
     if request.method == 'POST':
         new_search_dict = {}
-        for search_condition in ['artist', 'album', 'track', 'year', 'only_new']:
+        for search_condition in ['artist', 'album', 'year']:
             if form.data[search_condition]:
                 new_search_dict.update({search_condition: form.data[search_condition]})
         category = form.category.data
-        if "any" in category:
+        if "any" in category or not category:
             category = "artist,album,track,playlist"  ### ,show,episode ### implement in html....
         else:
             category = ','.join(category)
@@ -384,3 +384,71 @@ def spot_auth():
     auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     spotify = sp.Spotify(auth_manager=auth_manager)
     return spotify
+
+
+@app.route('/search_play', methods=['GET', 'POST'])
+def search_play():
+    cache_handler = sp.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = sp.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = sp.Spotify(auth_manager=auth_manager)
+    form = Spot_SearchForm()
+
+    if request.method == 'POST':
+        new_search_dict = {}
+        for search_condition in ['artist', 'album', 'track', 'year']:
+            if form.data[search_condition]:
+                new_search_dict.update({search_condition: form.data[search_condition]})
+        category = form.category.data
+        if "any" in category or not category:
+            category = "artist,album,track,playlist"  ### ,show,episode ### implement in html....
+        else:
+            category = ','.join(category)
+            category.replace(" ", "")
+        if 'search_term' in form.data:
+            search_string = form.search_term.data
+        else:
+            search_string = ''
+        if new_search_dict:
+            for constraint in new_search_dict:
+                search_string = search_string + " " + constraint + ":" + new_search_dict[constraint]
+        response = spotify.search(q=search_string, type=category, limit=50)
+
+        # results_list = []
+        results_dict = {}
+        for media_type in response:
+            if response[media_type]['items']:
+                results = response[media_type]
+                # print (len(results['items']),"RESULTS IN FORMAT",format)
+                things = results['items']
+                while results['next'] and results['offset'] < 950:
+                    # print (len(results['items']),"MORE RESULTS IN FORMAT",format)
+                    results = spotify.next(results)
+                    results = results[media_type]
+                    things.extend(results['items'])
+                results_dict.update({media_type: things})
+                # results_list.extend(things)
+
+        meta_results_dict = {}
+        if 'artists' in results_dict:
+            artist_list = results_dict['artists']
+            artist_list.sort(key=lambda x: (x['name'].lower(), -x['followers']['total']))
+            meta_results_dict.update({'artists': artist_list})
+        if 'albums' in results_dict:
+            album_list = sorted(results_dict['albums'], key=lambda x: (x['artists'][0]['name'].lower(),
+                                                                       x['name'].lower()))
+            meta_results_dict.update({'albums': album_list})
+        if 'tracks' in results_dict:
+            track_list = sorted(results_dict['tracks'], key=lambda x: (x['artists'][0]['name'].lower(),
+                                                                       x['album']['name'].lower(), x['name'].lower()))
+            meta_results_dict.update(({'tracks': track_list}))
+        if 'playlists' in results_dict:
+            playlist_list = sorted(results_dict['playlists'], key=lambda x: (x['name'].lower()))
+            meta_results_dict.update({'playlists': playlist_list})
+
+        # return meta_results_dict
+        return render_template(('/search_results.html'), results_dict=results_dict, meta_results_dict=meta_results_dict)
+
+    print('unvalidated')
+    return render_template('/search_play.html', form=form)
